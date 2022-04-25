@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Страница новости{% endblock %}
+    
+{% block body %}
+    <div class="article__header">
+        <div class="article__info">
+            <div class="article__info-date">
+                {{ post.date|date('d.m.Y') }}
+            </div>
+        </div>    
+    </div>
+
+    <h1 class="article__second-title">
+        {{ post.header }}
+    </h1>
+
+    <div class="article__announce">
+        <img src="{{ asset('/asset/img/1.jpg') }}" alt="">
+    </div>
+
+    <div class="full_text">
+        {{ post.fulltext }}
+    </div>
+{% endblock %}
