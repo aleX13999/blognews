@@ -5,9 +5,9 @@
         <title>{% block title %}Welcome!{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
         {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
+        <link href="{{ asset('/asset/css/main.css')}}" rel="stylesheet"/>
         {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-            <link href="{{ asset('/asset/css/main.css')}}" rel="stylesheet"/>
+            {{ encore_entry_link_tags('app') }}            
         {% endblock %}
 
         {% block javascripts %}
@@ -31,27 +31,24 @@
             <div class="collapse navbar-collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto mb-2 mb-md-0">
                 <li class="nav-item active">
-                <a class="nav-link" aria-current="page" href="#">Главная</a>
+                <a class="nav-link" aria-current="page" href="{{ path('posts') }}">Главная</a>
+                </li>
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                <li class="nav-item">
+                <a class="nav-link" href="{{ path('postAdd') }}">Добавить новость</a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link" href="#">Ссылка</a>
+                <a class="nav-link" href="{{ path('app_logout') }}">Выйти</a>
                 </li>
+                {% else %}
                 <li class="nav-item">
-                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                <a class="nav-link" href="{{ path('app_register') }}">Регистрация</a>                
                 </li>
-                <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-expanded="false">Выпадающий список</a>
-                <ul class="dropdown-menu" aria-labelledby="dropdown01">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
-                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                    <li><a class="dropdown-item" href="#">Something else here</a></li>
-                </ul>
+                <li>
+                <a class="nav-link" href="{{ path('app_login') }}">Войти</a>
                 </li>
+                {% endif %}
             </ul>
-            <form class="d-flex">
-                <input class="form-control mr-2" type="search" placeholder="Поиск" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">ОК</button>
-            </form>
             </div>
         </div>
         </nav>

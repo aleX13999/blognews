@@ -10,6 +10,7 @@ use App\Repository\PostsRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\BrowserKit\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -67,12 +68,29 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/admin/post/add", name = "postAddShow")
+     * @Route("/registration", name = "registrationPost", methods={"POST"})
+     */
+    public function registrationAction(Request $request)//: Response
+    {
+        //dd($request);
+        return $this->render('default/index.html.twig', [
+            'controller_name' => 'DefaultController',
+        ]);
+    }
+
+    /**
+     * @Route("/admin/post/add", name = "postAdd")
+     */
+    public function postAdd(): Response
+    {
+        return $this->render('default/postAdd.html.twig');
+    }
+
+    /**
+     * @Route("/admin/post/add/q", name = "postAddShow")
      */
     public function postAddShow(ManagerRegistry $doctrine): Response
-    {
-        $date = new DateTime('now');
-        
+    {        
         $post = new Posts();
 
         $post->setHeader('Третья новость');

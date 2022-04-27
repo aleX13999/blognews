@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block body %}
+    <div class="form-signin col-6 mx-auto border rounded shadow-sm p-3">
+        <h1 class="h3 mb-3 font-weight-normal">Регистрация</h1> 
+        {{ form_start(registrationForm) }}
+            
+                <div class="form-row mt-2">
+                    {{ form_row(registrationForm.login, {
+                        label: 'Логин'
+                    }) }}
+                </div>
+
+                <div class="form-row mt-2">
+                    {{ form_row(registrationForm.plainPassword, {
+                        label: 'Пароль',
+                    }) }}
+                </div>          
+            
+            <div class="row mt-4 justify-content-between">
+                <div class="col-4">
+                    <button type="submit" class="btn btn-success">Зарегистрироваться</button>
+                </div>
+                <div class="col-4">
+                    <a href="{{ path('app_login') }}">Войти</a>
+                </div>
+            </div>
+        {{ form_end(registrationForm) }}        
+    </div>
+    
+{% endblock %}
