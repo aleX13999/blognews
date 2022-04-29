@@ -10,7 +10,6 @@
 
     <div class="posts">
     {% for post in posts %}
-
         <div class="row g-0 border rounded flex-md-row mb-4 shadow-sm h-md-250 position-relative">
           <div class="col p-4 d-flex flex-column position-static">
             <h3 class="mb-0">{{ post.header }}</h3>
@@ -19,6 +18,10 @@
             <a href="{{ path('post', {id: post.id} ) }}">Продолжить чтение</a>
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
               <a href="{{ path('postUpdate', {id: post.id} ) }}">Редактировать новость</a>
+              <div class="d-grid gap-2 d-md-block">
+                <a href="{{ path('postDelete', {id: post.id} ) }}" class="btn btn-danger">Удалить</a>
+              </div>
+              
             {% endif %}
           </div>
           <div class="col-auto d-none d-lg-block">
@@ -36,9 +39,9 @@
       </li>
 
       {# Render each page number #}
-      {% for i in 1.. maxPages %}
+      {% for i in 1..maxPages %}
       <li {{ thisPage == i ? 'class="active"' }}>
-      <a href="{{ path('posts', {page: i}) }}">{{ i }}</a>
+      <a href="{{ path('posts', {page: i}) }}" class="m-2 p-2 mx-auto" disabled>{{ i }}</a>
       </li>
       {% endfor %}
 

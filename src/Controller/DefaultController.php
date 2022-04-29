@@ -37,15 +37,14 @@ class DefaultController extends AbstractController
      */
     public function showPosts($page=1, PostsRepository $postsRepository): Response
     {
-        $limit = 5;
-
+        $limit = 3;
         $posts = $postsRepository->getAllPosts($page, $limit);
         $maxPages = ceil($posts->count() / $limit);
         $thisPage = $page;
 
         if (!$posts) {
             throw $this->createNotFoundException(
-                'No posts'
+                'Нет ни одной новости!'
             );
         }
         
@@ -145,6 +144,19 @@ class DefaultController extends AbstractController
             'form'=>$form,
             'post'=>$post
         ]);
+    }
+
+    /**
+     * @Route("/admin/delete/{id}", name = "postDelete")
+     */
+    public function postDelete($id, ManagerRegistry $doctrine): Response
+    {
+        $entityManager = $doctrine->getManager();
+        $post = $entityManager->getRepository(Posts::class)->find($id);
+        $entityManager->remove($post);
+        $entityManager->flush();
+        return $this->redirectToRoute('posts');
+
     }
 
     /**
