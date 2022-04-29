@@ -33,11 +33,15 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/posts", name="posts")
+     * @Route("/{page}/posts", name="posts")
      */
-    public function showPosts(PostsRepository $postsRepository): Response
+    public function showPosts($page=1, PostsRepository $postsRepository): Response
     {
-        $posts = $postsRepository->findBy(array(), array('date'=>'DESC'));
+        $limit = 5;
+
+        $posts = $postsRepository->getAllPosts($page, $limit);
+        $maxPages = ceil($posts->count() / $limit);
+        $thisPage = $page;
 
         if (!$posts) {
             throw $this->createNotFoundException(
@@ -47,6 +51,8 @@ class DefaultController extends AbstractController
         
         return $this->render('default/posts.html.twig', [
             'posts'=>$posts,
+            'maxPages'=>$maxPages,
+            'thisPage'=>$thisPage
         ]);        
     }
 
@@ -62,28 +68,7 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/registration", name = "registration")
-     */
-    public function registration(): Response
-    {
-        return $this->render('default/registration.html.twig', [
-            'controller_name' => 'DefaultController',
-        ]);
-    }
-
-    /**
-     * @Route("/registration", name = "registrationPost", methods={"POST"})
-     */
-    public function registrationAction(Request $request)//: Response
-    {
-        //dd($request);
-        return $this->render('default/index.html.twig', [
-            'controller_name' => 'DefaultController',
-        ]);
-    }
-
-    /**
-     * @Route("/admin/post/add", name = "postAdd")
+     * @Route("/admin/add", name = "postAdd")
      */
     public function postAdd(Request $request, ManagerRegistry $doctrine, SluggerInterface $slugger): Response
     {
@@ -131,6 +116,38 @@ class DefaultController extends AbstractController
     }
 
     /**
+     * @Route("/admin/update/{id}", name = "postUpdate")
+     */
+    public function postUpdate(Request $request, ManagerRegistry $doctrine, SluggerInterface $slugger, PostsRepository $postsRepository, $id): Response
+    {
+        $post = $postsRepository->find($id);
+        
+        $p = new Posts;
+
+        $form = $this->createForm(PostType::class, $p);
+
+        $form->handleRequest($request);
+
+        //dd($post);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager = $doctrine->getManager();
+            $pp = $entityManager->getRepository(Posts::class)->find($id);
+            
+            $pp->setImg($form->get('img')->getData());
+            $pp->setAnnotation($form->get('annotation')->getData());
+            $entityManager->persist($pp);
+            $entityManager->flush();
+            return $this->redirectToRoute('posts');
+        }
+
+        return $this->renderForm('default/updatePost.html.twig', [
+            'form'=>$form,
+            'post'=>$post
+        ]);
+    }
+
+    /**
      * @Route("/admin/news/add/q", name = "postAddShow")
      */
     public function postAddShow(ManagerRegistry $doctrine): Response
@@ -141,16 +158,11 @@ class DefaultController extends AbstractController
         $post->setDate(new DateTime('now'));
         $post->setImg('#');
         $post->setAllText('Полный текст');
-
-
         $entityManager = $doctrine->getManager();
-
         // сообщите Doctrine, что вы хотите (в итоге) сохранить Продукт (пока без запросов)
         $entityManager->persist($post);
-
         // действительно выполните запросы (например, запрос INSERT)
         $entityManager->flush();
-
         return $this->render('default/index.html.twig');
     }
 
@@ -173,42 +185,5 @@ class DefaultController extends AbstractController
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
-    }
-
-    /**
-     * @Route("/", name = "app_test", methods={"POST"})
-     */
-    public function test(Request $request)
-    {
-        dd($request);
-    }
-
-
-
-
-
-    /**
-     * @Route("/test", name = "test")
-     */
-    public function testic(ManagerRegistry $doctrine): Response
-    {
-        $test = new Test;
-
-        $test->setName('Firstname');
-        $test->setImg('#');
-        $test->setDate(new DateTime('now'));
-        $test->setAlltext('Кек вообще');
-
-        $entityManager = $doctrine->getManager();
-
-        // сообщите Doctrine, что вы хотите (в итоге) сохранить Продукт (пока без запросов)
-        $entityManager->persist($test);
-
-        // действительно выполните запросы (например, запрос INSERT)
-        $entityManager->flush();
-
-        $test->setName('Firstname');
-
-        return new Response('Saved new product with id '.$test->getId());
     }
 }

@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Изменить новость{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+
+        <img src="{{ asset('/uploads/img/' ~ post.img) }}" height="500">
+
+        {{ form_row(form.img, {
+            
+        }) }} 
+
+        {{ form_row(form.header, {
+            'value':post.header,
+            'label':'Заголовок'
+            }) }}        
+
+        {{ form_row(form.annotation, {
+            'value':post.annotation,
+            'label':'Аннотация'
+            }) }}
+
+
+
+ 
+
+        {{ form_row(form.alltext, {
+            'value':post.alltext,
+            'label':'Весь текст новости'
+            }) }}
+
+        
+
+        {{ form_row(form.date,{
+            'label':'Установите дату новости',
+        }) }}
+
+
+    {{ form_end(form) }}
+
+{% endblock %}
