@@ -16,10 +16,10 @@
     </h1>
 
     <div class="article__announce">
-        <img src="{{ asset('/asset/img/1.jpg') }}" alt="">
+        <img src="{{ asset('/uploads/img/' ~ post.img) }}" height="500">
     </div>
 
-    <div class="full_text">
-        {{ post.fulltext }}
+    <div class="alltext">
+        {{ post.alltext }}
     </div>
 {% endblock %}

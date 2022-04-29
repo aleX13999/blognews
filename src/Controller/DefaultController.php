@@ -95,27 +95,7 @@ class DefaultController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // $form->getData() holds the submitted values
-            // но изначальная переменная `$task` также была обновлена
-            //$post = $form->getData();
-
-            $post->setHeader($form->get('header')->getData());
-            $post->setImg($form->get('img')->getData());
-            $post->setAnnotation($form->get('annotation')->getData());
-            $post->setDate($form->get('date')->getData());
-            $post->setFullText($form->get('fulltext')->getData());
-           
-            // $entityManager = $doctrine->getManager();
-
-            // // сообщите Doctrine, что вы хотите (в итоге) сохранить Продукт (пока без запросов)
-            // $entityManager->persist($post);
-            // // действительно выполните запросы (например, запрос INSERT)
-            // $entityManager->flush();
-            // ... выполните какое-то действие, например сохраните задачу в базу данных
-            // for example, if Task is a Doctrine entity, save it!
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($post);
-            $entityManager->flush();
+            $post = $form->getData();
 
             $imgFile = $form->get('img')->getData();
 
@@ -125,21 +105,22 @@ class DefaultController extends AbstractController
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$imgFile->guessExtension();
 
-                // Переместите файлв каталог, где хранятся брошюры
                 try {
                     $imgFile->move(
                         $this->getParameter('img_directory'),
                         $newFilename
                     );
                 } catch (FileException $e) {
-                    // ... разберитесь с исключением, если что-то случится во время загрузки файла
+                    
                 }
-
-                // обновляет свойство 'brochureFilename' для сохранения имени PDF-файла,
-                // а не его содержания
-                $post->setImg($newFilename);
-                
+                $post->setImg($newFilename);                
             }
+           
+            $entityManager = $doctrine->getManager();
+            // сообщите Doctrine, что вы хотите (в итоге) сохранить Продукт (пока без запросов)
+            $entityManager->persist($post);
+            // действительно выполните запросы (например, запрос INSERT)
+            $entityManager->flush();
 
             return $this->redirectToRoute('posts');
         }
@@ -154,13 +135,18 @@ class DefaultController extends AbstractController
      */
     public function postAddShow(ManagerRegistry $doctrine): Response
     {        
-        $news = new News();
+        $post = new Posts();
+        $post->setHeader('Заголовок');
+        $post->setAnnotation('Аннотация');
+        $post->setDate(new DateTime('now'));
+        $post->setImg('#');
+        $post->setAllText('Полный текст');
 
 
         $entityManager = $doctrine->getManager();
 
         // сообщите Doctrine, что вы хотите (в итоге) сохранить Продукт (пока без запросов)
-        $entityManager->persist($news);
+        $entityManager->persist($post);
 
         // действительно выполните запросы (например, запрос INSERT)
         $entityManager->flush();
@@ -211,6 +197,7 @@ class DefaultController extends AbstractController
         $test->setName('Firstname');
         $test->setImg('#');
         $test->setDate(new DateTime('now'));
+        $test->setAlltext('Кек вообще');
 
         $entityManager = $doctrine->getManager();
 

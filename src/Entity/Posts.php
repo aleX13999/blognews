@@ -40,7 +40,7 @@ class Posts
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $fulltext;
+    private $alltext;
 
     public function getId(): ?int
     {
@@ -95,14 +95,14 @@ class Posts
         return $this;
     }
 
-    public function getFullText(): ?string
+    public function getAllText(): ?string
     {
-        return $this->fulltext;
+        return $this->alltext;
     }
 
-    public function setFullText(?string $fulltext): self
+    public function setAllText(?string $alltext): self
     {
-        $this->fulltext = $fulltext;
+        $this->alltext = $alltext;
 
         return $this;
     }

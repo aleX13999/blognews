@@ -28,9 +28,20 @@ class Test
     private $img;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $date;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $annotation;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $alltext;
+
 
     public function getId(): ?int
     {
@@ -66,10 +77,36 @@ class Test
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
 
         return $this;
     }
+
+    public function getAnnotation(): ?string
+    {
+        return $this->annotation;
+    }
+
+    public function setAnnotation(?string $annotation): self
+    {
+        $this->annotation = $annotation;
+
+        return $this;
+    }
+
+    public function getAlltext(): ?string
+    {
+        return $this->alltext;
+    }
+
+    public function setAlltext(?string $alltext): self
+    {
+        $this->alltext = $alltext;
+
+        return $this;
+    }
+
+
 }
