@@ -22,6 +22,14 @@
                 <a href="{{ path('postDelete', {id: post.id} ) }}" class="btn btn-danger">Удалить</a>
               </div>
               
+              <div class="is-isVisible">
+                  {% if post.isVisible %}
+                    Новость видна
+                  {% else %}
+                    Новость скрыта
+                  {% endif %}
+              </div>
+              
             {% endif %}
           </div>
           <div class="col-auto d-none d-lg-block">

@@ -5,9 +5,10 @@ namespace App\Form;
 use App\Entity\Posts;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -28,15 +29,19 @@ class PostType extends AbstractType
                 ])
             ],
         ])
-        ->add('annotation')
+        ->add('annotation', TextareaType::class)
         ->add('date', DateTimeType::class, [
             'date_label' => 'Установите дату новости',
             'widget' => 'single_text',
 
         ])
-        ->add('alltext')
+        ->add('alltext', TextareaType::class)
         ->add('save', SubmitType::class,[
             'label' => 'Сохранить',
+        ])
+        ->add('isVisible', CheckboxType::class, [
+            'label'    => 'Показывать новость',
+            'required' => false,
         ])
         ;
     }

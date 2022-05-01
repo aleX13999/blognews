@@ -38,8 +38,15 @@ class DefaultController extends AbstractController
      */
     public function showPosts($page=1, PostsRepository $postsRepository): Response
     {
-        $limit = 3;
-        $posts = $postsRepository->getAllPosts($page, $limit);
+
+        $limit = 10;
+        
+        if($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')){
+            $posts = $postsRepository->getPostsToAdmin($page, $limit);
+        }
+        else
+            $posts = $postsRepository->getPostsToUser($page, $limit);      
+        
         $maxPages = ceil($posts->count() / $limit);
         $thisPage = $page;
 
@@ -149,7 +156,7 @@ class DefaultController extends AbstractController
                 // это необходимо для безопасного включения имени файла в качестве части URL
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$imgFile->guessExtension();
-                
+
                 try {
                     $imgFile->move(
                         $this->getParameter('img_directory'),

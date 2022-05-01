@@ -49,7 +49,22 @@ class PostsRepository extends ServiceEntityRepository
         }
     }
 
-    public function getAllPosts($currentPage = 1, $limit=10)
+    public function getPostsToUser($currentPage = 1, $limit=10)
+    {
+        // Create our query
+        $query = $this->createQueryBuilder('p')
+            ->where('p.isVisible = True')
+            ->orderBy('p.date', 'DESC')
+            ->getQuery();
+
+        // No need to manually get get the result ($query->getResult())
+
+        $paginator = $this->paginate($query, $currentPage, $limit);
+
+        return $paginator;
+    }
+
+    public function getPostsToAdmin($currentPage = 1, $limit=10)
     {
         // Create our query
         $query = $this->createQueryBuilder('p')
