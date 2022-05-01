@@ -18,8 +18,10 @@ class PostType extends AbstractType
     {
         $builder
         ->add('header')
-        ->add('img', FileType::class,[
+        ->add('imgFile', FileType::class,[
             'label' => 'Выберите изображение',
+            'mapped' => false,
+            'required' => false,
             'constraints' => [
                 new File([
                     'maxSize' => '1024k',
@@ -33,7 +35,9 @@ class PostType extends AbstractType
 
         ])
         ->add('alltext')
-        ->add('save', SubmitType::class)
+        ->add('save', SubmitType::class,[
+            'label' => 'Сохранить',
+        ])
         ;
     }
 

@@ -17,6 +17,7 @@ use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
@@ -33,7 +34,7 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/{page}/posts", name="posts")
+     * @Route("/posts/{page}", name="posts")
      */
     public function showPosts($page=1, PostsRepository $postsRepository): Response
     {
@@ -56,10 +57,24 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/posts/{id}", name = "post")
+     * @Route("/posts/{page}/{id}", name = "post")
      */
-    public function post(PostsRepository $postsRepository, $id): Response
-    {
+    public function post($page=1, $id, PostsRepository $postsRepository): Response
+    {        
+        $post = $postsRepository->find($id);
+
+        //dd($page);
+        return $this->render('default/currentPost.html.twig', [
+            'post' => $post,
+            'thisPage' => $page,
+        ]);
+    }
+
+    /**
+     * @Route(name = "backToPosts")
+     */
+    public function backToPosts(PostsRepository $postsRepository, $id): Response
+    {        
         $post = $postsRepository->find($id);
         return $this->render('default/currentPost.html.twig', [
             'post' => $post,
@@ -81,7 +96,7 @@ class DefaultController extends AbstractController
 
             $post = $form->getData();
 
-            $imgFile = $form->get('img')->getData();
+            $imgFile = $form->get('imgFile')->getData();
 
             if ($imgFile) {
                 $originalFilename = pathinfo($imgFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -120,21 +135,37 @@ class DefaultController extends AbstractController
     public function postUpdate(Request $request, ManagerRegistry $doctrine, SluggerInterface $slugger, PostsRepository $postsRepository, $id): Response
     {
         $post = $postsRepository->find($id);
-        
-        $p = new Posts;
-
-        $form = $this->createForm(PostType::class, $p);
-
+        $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
-
-        //dd($post);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $doctrine->getManager();
             $pp = $entityManager->getRepository(Posts::class)->find($id);
+
+            $imgFile = $form->get('imgFile')->getData();
+
+            if ($imgFile) {
+                $originalFilename = pathinfo($imgFile->getClientOriginalName(), PATHINFO_FILENAME);
+                // это необходимо для безопасного включения имени файла в качестве части URL
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imgFile->guessExtension();
+                
+                try {
+                    $imgFile->move(
+                        $this->getParameter('img_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    
+                } 
+
+                $pp->setImg($newFilename);              
+            }
             
-            $pp->setImg($form->get('img')->getData());
+            $pp->setHeader($form->get('header')->getData());
+            $pp->setDate($form->get('date')->getData());
             $pp->setAnnotation($form->get('annotation')->getData());
+            $pp->setAllText($form->get('alltext')->getData());
             $entityManager->persist($pp);
             $entityManager->flush();
             return $this->redirectToRoute('posts');

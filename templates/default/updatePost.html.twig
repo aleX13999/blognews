@@ -7,26 +7,19 @@
 
         <img src="{{ asset('/uploads/img/' ~ post.img) }}" height="500">
 
-        {{ form_row(form.img, {
+        {{ form_row(form.imgFile, {
             
         }) }} 
 
-        {{ form_row(form.header, {
-            'value':post.header,
+        {{ form_row(form.header, {            
             'label':'Заголовок'
             }) }}        
 
-        {{ form_row(form.annotation, {
-            'value':post.annotation,
+        {{ form_row(form.annotation, {            
             'label':'Аннотация'
-            }) }}
+            }) }} 
 
-
-
- 
-
-        {{ form_row(form.alltext, {
-            'value':post.alltext,
+        {{ form_row(form.alltext, {            
             'label':'Весь текст новости'
             }) }}
 

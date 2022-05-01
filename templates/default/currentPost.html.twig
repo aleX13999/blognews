@@ -22,4 +22,8 @@
     <div class="alltext">
         {{ post.alltext }}
     </div>
+
+    <div class="btn-back">
+        <a href="{{ path('posts', {page: thisPage} ) }}" class="btn btn-info">Назад<a/>
+    </div>
 {% endblock %}
