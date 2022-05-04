@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Controller\ApiController;
 use App\Entity\Posts;
 use App\Entity\News;
 use App\Entity\Test;
@@ -36,17 +37,17 @@ class DefaultController extends AbstractController
     /**
      * @Route("/posts/{page}", name="posts")
      */
-    public function showPosts($page=1, PostsRepository $postsRepository): Response
+    public function showPosts($page=1, PostsRepository $postsRepository, ApiController $api): Response
     {
-
         $limit = 10;
+        $testApi = $api->getPostsToPage($page, $limit, $postsRepository);
+        //dd($testApi);
+        $posts = $postsRepository->getPostsToPage($page, $limit);      
         
-        if($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')){
-            $posts = $postsRepository->getPostsToAdmin($page, $limit);
-        }
-        else
-            $posts = $postsRepository->getPostsToUser($page, $limit);      
-        
+        $pp = json_decode($testApi->getContent());
+        //dd($posts->count(), count($pp));
+        //dd($pp);
+
         $maxPages = ceil($posts->count() / $limit);
         $thisPage = $page;
 
@@ -55,9 +56,10 @@ class DefaultController extends AbstractController
                 'Нет ни одной новости!'
             );
         }
+
         
         return $this->render('default/posts.html.twig', [
-            'posts'=>$posts,
+            'posts'=>$pp,
             'maxPages'=>$maxPages,
             'thisPage'=>$thisPage
         ]);        
@@ -66,11 +68,12 @@ class DefaultController extends AbstractController
     /**
      * @Route("/posts/{page}/{id}", name = "post")
      */
-    public function post($page=1, $id, PostsRepository $postsRepository): Response
+    public function post($page=1, $id, PostsRepository $postsRepository, ApiController $api): Response
     {        
-        $post = $postsRepository->find($id);
+        $testApi = $api->getPost($id, $postsRepository);
+        $post = json_decode($testApi->getContent());
 
-        //dd($page);
+        //dd($post);
         return $this->render('default/currentPost.html.twig', [
             'post' => $post,
             'thisPage' => $page,
@@ -172,7 +175,7 @@ class DefaultController extends AbstractController
             $pp->setHeader($form->get('header')->getData());
             $pp->setDate($form->get('date')->getData());
             $pp->setAnnotation($form->get('annotation')->getData());
-            $pp->setAllText($form->get('alltext')->getData());
+            $pp->setAllText($form->get('allText')->getData());
             $entityManager->persist($pp);
             $entityManager->flush();
             return $this->redirectToRoute('posts');

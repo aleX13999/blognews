@@ -39,7 +39,7 @@ class Posts
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $alltext;
+    private $allText;
 
     /**
      * @ORM\Column(type="boolean")
@@ -101,12 +101,12 @@ class Posts
 
     public function getAllText(): ?string
     {
-        return $this->alltext;
+        return $this->allText;
     }
 
-    public function setAllText(?string $alltext): self
+    public function setAllText(?string $allText): self
     {
-        $this->alltext = $alltext;
+        $this->allText = $allText;
 
         return $this;
     }

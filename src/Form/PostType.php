@@ -35,7 +35,7 @@ class PostType extends AbstractType
             'widget' => 'single_text',
 
         ])
-        ->add('alltext', TextareaType::class)
+        ->add('allText', TextareaType::class)
         ->add('save', SubmitType::class,[
             'label' => 'Сохранить',
         ])
