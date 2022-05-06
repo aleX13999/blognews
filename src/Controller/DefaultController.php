@@ -4,34 +4,24 @@ namespace App\Controller;
 
 use App\Controller\ApiController;
 use App\Entity\Posts;
-use App\Entity\News;
-use App\Entity\Test;
-use App\Entity\User;
-use App\Form\UserType;
 use App\Form\PostType;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\Repository\PostsRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use DateTime;
+use App\Services\FileUploader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class DefaultController extends AbstractController
 {
     /**
-     * @Route("/", name = "app_default")
+     * @Route("/", name="main")
      */
-    public function index(): Response
+    public function main()
     {
-        return $this->render('default/index.html.twig', [
-            'controller_name' => 'DefaultController',
-        ]);
+        return $this->redirectToRoute('posts');
     }
 
     /**
@@ -39,16 +29,14 @@ class DefaultController extends AbstractController
      */
     public function showPosts($page=1, PostsRepository $postsRepository, ApiController $api): Response
     {
-        $limit = 10;
-        $testApi = $api->getPostsToPage($page, $limit, $postsRepository);
-        //dd($testApi);
-        $posts = $postsRepository->getPostsToPage($page, $limit);      
-        
-        $pp = json_decode($testApi->getContent());
-        //dd($posts->count(), count($pp));
-        //dd($pp);
+        $limit = 5;
 
-        $maxPages = ceil($posts->count() / $limit);
+        if($this->isGranted('IS_AUTHENTICATED_FULLY'))
+            $posts = $postsRepository->getPostsToAdmin($page, $limit);        
+        else
+            $posts = json_decode($api->getPostsToPage($page, $limit, $postsRepository)->getContent()); 
+
+        $maxPages = ceil($postsRepository->getCountPosts() / $limit);
         $thisPage = $page;
 
         if (!$posts) {
@@ -57,9 +45,8 @@ class DefaultController extends AbstractController
             );
         }
 
-        
         return $this->render('default/posts.html.twig', [
-            'posts'=>$pp,
+            'posts'=>$posts,
             'maxPages'=>$maxPages,
             'thisPage'=>$thisPage
         ]);        
@@ -73,7 +60,6 @@ class DefaultController extends AbstractController
         $testApi = $api->getPost($id, $postsRepository);
         $post = json_decode($testApi->getContent());
 
-        //dd($post);
         return $this->render('default/currentPost.html.twig', [
             'post' => $post,
             'thisPage' => $page,
@@ -81,20 +67,9 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route(name = "backToPosts")
-     */
-    public function backToPosts(PostsRepository $postsRepository, $id): Response
-    {        
-        $post = $postsRepository->find($id);
-        return $this->render('default/currentPost.html.twig', [
-            'post' => $post,
-        ]);
-    }
-
-    /**
      * @Route("/admin/add", name = "postAdd")
      */
-    public function postAdd(Request $request, ManagerRegistry $doctrine, SluggerInterface $slugger): Response
+    public function postAdd(Request $request, ManagerRegistry $doctrine, FileUploader $fileUploader): Response
     {
         $post = new Posts;
 
@@ -108,23 +83,9 @@ class DefaultController extends AbstractController
 
             $imgFile = $form->get('imgFile')->getData();
 
-            if ($imgFile) {
-                $originalFilename = pathinfo($imgFile->getClientOriginalName(), PATHINFO_FILENAME);
-                // это необходимо для безопасного включения имени файла в качестве части URL
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$imgFile->guessExtension();
+            if ($imgFile)
+                $post->setImg($fileUploader->upload($imgFile)); 
 
-                try {
-                    $imgFile->move(
-                        $this->getParameter('img_directory'),
-                        $newFilename
-                    );
-                } catch (FileException $e) {
-                    
-                }
-                $post->setImg($newFilename);                
-            }
-           
             $entityManager = $doctrine->getManager();
             // сообщите Doctrine, что вы хотите (в итоге) сохранить Продукт (пока без запросов)
             $entityManager->persist($post);
@@ -142,7 +103,7 @@ class DefaultController extends AbstractController
     /**
      * @Route("/admin/update/{id}", name = "postUpdate")
      */
-    public function postUpdate(Request $request, ManagerRegistry $doctrine, SluggerInterface $slugger, PostsRepository $postsRepository, $id): Response
+    public function postUpdate(Request $request, ManagerRegistry $doctrine, FileUploader $fileUploader, PostsRepository $postsRepository, $id): Response
     {
         $post = $postsRepository->find($id);
         $form = $this->createForm(PostType::class, $post);
@@ -154,23 +115,9 @@ class DefaultController extends AbstractController
 
             $imgFile = $form->get('imgFile')->getData();
 
-            if ($imgFile) {
-                $originalFilename = pathinfo($imgFile->getClientOriginalName(), PATHINFO_FILENAME);
-                // это необходимо для безопасного включения имени файла в качестве части URL
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$imgFile->guessExtension();
-
-                try {
-                    $imgFile->move(
-                        $this->getParameter('img_directory'),
-                        $newFilename
-                    );
-                } catch (FileException $e) {
-                    
-                } 
-
-                $pp->setImg($newFilename);              
-            }
+            if ($imgFile)
+                $pp->setImg($fileUploader->upload($imgFile));              
+            
             
             $pp->setHeader($form->get('header')->getData());
             $pp->setDate($form->get('date')->getData());
@@ -196,27 +143,8 @@ class DefaultController extends AbstractController
         $post = $entityManager->getRepository(Posts::class)->find($id);
         $entityManager->remove($post);
         $entityManager->flush();
+
         return $this->redirectToRoute('posts');
-
-    }
-
-    /**
-     * @Route("/admin/news/add/q", name = "postAddShow")
-     */
-    public function postAddShow(ManagerRegistry $doctrine): Response
-    {        
-        $post = new Posts();
-        $post->setHeader('Заголовок');
-        $post->setAnnotation('Аннотация');
-        $post->setDate(new DateTime('now'));
-        $post->setImg('#');
-        $post->setAllText('Полный текст');
-        $entityManager = $doctrine->getManager();
-        // сообщите Doctrine, что вы хотите (в итоге) сохранить Продукт (пока без запросов)
-        $entityManager->persist($post);
-        // действительно выполните запросы (например, запрос INSERT)
-        $entityManager->flush();
-        return $this->render('default/index.html.twig');
     }
 
     #[Route(path: '/login', name: 'app_login')]

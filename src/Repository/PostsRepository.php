@@ -49,6 +49,11 @@ class PostsRepository extends ServiceEntityRepository
         }
     }
 
+    public function getCountPosts()
+    {
+        return count($this->findAll());
+    }
+
     public function getPostsToPage($currentPage = 1, $limit=10)
     {
         // Create our query

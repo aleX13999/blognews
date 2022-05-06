@@ -10,10 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiController extends AbstractController
 {
-    // public function __construct(private PostsRepository $postsRepository)
-    // {        
-    // }
-    
     /**
      * @Route("/api/posts/{page}", name = "api_get_all_posts", methods={"get"})
      */
@@ -50,19 +46,16 @@ class ApiController extends AbstractController
             return $tree;
         }
 
-        $maxDepth--;    //уменьшаю оставшуюся глубину
-
         if($numOfNodes <= 5)    //если осталось меньше 5 узлов
             $rnd_nodes_col = rand(0, $numOfNodes);  //правой границей является оставшееся число узлов
         else        
             $rnd_nodes_col = rand(0, 5);  //случайное число новых узлов от 0 до 5
 
         $numOfNodes -= $rnd_nodes_col;    //отнимаем сгенерированное кол-во новых узлов
-
         $nodes = [];    //новый массив для потомков
         
         for($i=0; $i<$rnd_nodes_col; $i++)
-            $nodes[] = $this->buildTree($numOfNodes, $maxDepth);    //кол-во узлов передается по ссылке
+            $nodes[] = $this->buildTree($numOfNodes, $maxDepth--);    //кол-во узлов передается по ссылке
 
         $tree['nodes'] = $nodes;    //добавляю в созданный узел массив потомков
         
@@ -91,8 +84,6 @@ class ApiController extends AbstractController
         $nodes_col = count($tree->nodes);   //сколько потомков в данном узле
 
         for($i=0;$i<$nodes_col;$i++)    //цикл по всем потомкам
-        {
             $this->findInTree($tree->nodes[$i], $maxValue); //для каждого потомка вызываем рекурсию
-        }
     }
 }

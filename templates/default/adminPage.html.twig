@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Страница новости{% endblock %}
+    
+{% block body %}
+    <div class="article__header">
+        <div class="article__info">
+            <div class="article__info-date">
+                {{ post.date|date('d.m.Y') }}
+            </div>
+        </div>    
+    </div>
+
+    <h1 class="article__second-title">
+        {{ post.header }}
+    </h1>
+
+    <div class="article__announce">
+        <img src="{{ asset('/uploads/img/' ~ post.img) }}" height="500">
+    </div>
+
+    <div class="alltext">
+        {{ post.allText }}
+    </div>
+
+    <div class="btn-back">
+        <a href="{{ path('posts', {page: thisPage} ) }}" class="btn btn-info">Назад<a/>
+    </div>
+{% endblock %}
