@@ -3,35 +3,13 @@
 {% block title %}Изменить новость{% endblock %}
 
 {% block body %}
+ 
     {{ form_start(form) }}
-
-        <img src="{{ asset('/uploads/img/' ~ post.img) }}" height="500">
-
-        {{ form_row(form.imgFile, {
-            
-        }) }} 
-
-        {{ form_row(form.header, {            
-            'label':'Заголовок'
-            }) }}        
-
-        {{ form_row(form.annotation, {            
-            'label':'Аннотация'
-            }) }} 
-
-        {{ form_row(form.allText, {            
-            'label':'Весь текст новости'
-            }) }}
-
-        
-
-        {{ form_row(form.date,{
-            'label':'Установите дату новости',
-        }) }}
-
-        {{ form_row(form.isVisible) }}
-
-
+    {{ form_row(form.header) }}
+    <div class="mb-1 text-muted">Текущее изображение</div>
+    <img src="{{ asset('/uploads/img/' ~ post.img) }}" height="400">
+    {{ form_row(form.imgFile) }}
+    
     {{ form_end(form) }}
 
 {% endblock %}

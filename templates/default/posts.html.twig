@@ -15,14 +15,14 @@
             <h3 class="mb-0">{{ post.header }}</h3>
             <div class="mb-1 text-muted">{{ post.date|date('d.m.Y') }}</div>
             <p class="card-text mb-auto">{{ post.annotation }}</p>
-            <a href="{{ path('post', {page: thisPage, id: post.id} ) }}">Продолжить чтение</a>
+            <a href="{{ path('post', {page: thisPage, id: post.id} ) }}" class="p-1">Продолжить чтение</a>
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-              <a href="{{ path('postUpdate', {id: post.id} ) }}">Редактировать новость</a>
-              <div class="d-grid gap-2 d-md-block">
+              <a href="{{ path('postUpdate', {id: post.id} ) }}" class="p-1">Редактировать новость</a>
+              <div class="d-grid gap-2 d-md-block p-1">
                 <a href="{{ path('postDelete', {id: post.id} ) }}" class="btn btn-danger">Удалить</a>
               </div>
               
-              <div class="is-isVisible">
+              <div class="is-isVisible p-1">
                   {% if post.isVisible %}
                     Новость видна
                   {% else %}
@@ -39,24 +39,26 @@
     {% endfor %}
 
   {% if maxPages > 1 %}
-  <ul class="pagination pagination-sm">
-      {# `«` arrow  #}
-      <li {{ thisPage == 1 ? 'class="disabled"' }}>
-          <a href="{{ path('posts', {page: thisPage-1 < 1 ? 1 : thisPage-1}) }}">«</a>
-      </li>
+    <div class="pages">
+        <ul class="pagination pagination-sm">
+          {# `«` arrow  #}
+          <li {{ thisPage == 1 ? 'class="disabled"' }}>
+              <a href="{{ path('posts', {page: thisPage-1 < 1 ? 1 : thisPage-1}) }}">«</a>
+          </li>
 
-      {# Render each page number #}
-      {% for i in 1..maxPages %}
-      <li {{ thisPage == i ? 'class="active"' }}>
-      <a href="{{ path('posts', {page: i}) }}" class="m-2 p-2 mx-auto" disabled>{{ i }}</a>
-      </li>
-      {% endfor %}
+          {# Render each page number #}
+          {% for i in 1..maxPages %}
+          <li {{ thisPage == i ? 'class="active"' }}>
+            <a href="{{ path('posts', {page: i}) }}" class="m-2 p-2 mx-auto">{{ i }}</a>
+          </li>
+          {% endfor %}
 
-      {# `»` arrow #}
-      <li {{ thisPage == maxPages ? 'class="disabled"' }}>
-          <a href="{{ path('posts', {page: thisPage+1 <= maxPages ? thisPage+1 : thisPage}) }}">»</a>
-      </li>
-  </ul>
+          {# `»` arrow #}
+          <li {{ thisPage == maxPages ? 'class="disabled"' }}>
+              <a href="{{ path('posts', {page: thisPage+1 <= maxPages ? thisPage+1 : thisPage}) }}">»</a>
+          </li>
+      </ul>
+    </div>
   {% endif %}
 
     </div>

@@ -18,7 +18,9 @@ class PostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-        ->add('header')
+        ->add('header', null ,[
+            'label' => 'Заголовок',
+        ])
         ->add('imgFile', FileType::class,[
             'label' => 'Выберите изображение',
             'mapped' => false,
@@ -29,13 +31,17 @@ class PostType extends AbstractType
                 ])
             ],
         ])
-        ->add('annotation', TextareaType::class)
+        ->add('annotation', TextareaType::class, [
+            'label' => 'Аннотация',
+        ])
         ->add('date', DateTimeType::class, [
-            'date_label' => 'Установите дату новости',
+            'label' => 'Установите дату новости',
             'widget' => 'single_text',
 
         ])
-        ->add('allText', TextareaType::class)
+        ->add('allText', TextareaType::class, [
+            'label' => 'Полный текст',
+        ])
         ->add('save', SubmitType::class,[
             'label' => 'Сохранить',
         ])

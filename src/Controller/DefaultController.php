@@ -29,7 +29,7 @@ class DefaultController extends AbstractController
      */
     public function showPosts($page=1, PostsRepository $postsRepository, ApiController $api): Response
     {
-        $limit = 5;
+        $limit = 10;
 
         if($this->isGranted('IS_AUTHENTICATED_FULLY'))
             $posts = $postsRepository->getPostsToAdmin($page, $limit);        
